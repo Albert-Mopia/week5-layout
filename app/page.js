@@ -12,7 +12,7 @@ export default function Home() {
       <section className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#0f4d3a] to-[#18684f] text-white p-8 sm:p-12 shadow-md">
         <div className="max-w-2xl space-y-4">
           <span className="inline-block text-xs uppercase tracking-widest font-semibold px-3 py-1 bg-emerald-500/20 text-emerald-200 rounded-full border border-emerald-400/30">
-            Veterans Golf Association • Branch 12
+            Pinoy Veterans Golf Association • Est 2020
           </span>
           <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight leading-tight">
             Fairways, Flight Play & Veteran Camaraderie.
