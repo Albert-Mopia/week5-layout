@@ -50,7 +50,7 @@ export default function Home() {
             Agave Shooters Monthly Flight Championship
           </h2>
           <p className="text-xs text-gray-600">
-            📍 Raven Golf Club • Phoenix, AZ | 🗓️ Saturday 07:30 AM Shotgun Start
+            📍 Admiral Baker Golf Course • San Diego, CA | 🗓️ Saturday 07:30 AM Shotgun Start
           </p>
         </div>
         <Link
