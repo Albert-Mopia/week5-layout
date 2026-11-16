@@ -1,6 +1,5 @@
-
 import "./globals.css";
-import Link from "next/link"; // <--- ADD THIS LINE HERE
+import Link from "next/link";
 import { Imperial_Script } from "next/font/google";
 
 const imperialScript = Imperial_Script({
@@ -17,35 +16,37 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className="min-h-screen flex flex-col bg-[#f4f7f4] text-gray-900 antialiased">
-        {/* Navigation Bar */}
-        <header className="bg-[#0f4d3a] text-white px-8 py-4 shadow-sm">
+        {/* Navigation Bar - Fixed to the top */}
+        <header className="fixed top-0 left-0 right-0 z-50 bg-[#0f4d3a] text-white px-8 py-4 shadow-md">
           <div className="max-w-6xl mx-auto flex items-center justify-between">
             {/* Logo links back to home */}
-            <Link href="/" className={`${imperialScript.className} text-4xl tracking-wider hover:opacity-90 transition-opacity`}>
+            <Link
+              href="/"
+              className={`${imperialScript.className} text-4xl tracking-wider hover:opacity-90 transition-opacity`}
+            >
               Agave Shooters
             </Link>
 
             {/* Working Navigation Links */}
-              <nav className="flex space-x-8 text-sm font-light">
-                <Link href="/" className="hover:text-emerald-200 transition-colors">
-                   Home
-                </Link>
-                <Link href="/players" className="hover:text-emerald-200 transition-colors">
-                    Players
-                </Link>
-                <Link href="/about" className="hover:text-emerald-200 transition-colors">
-                  About
-                </Link>
-                <Link href="/contact" className="hover:text-emerald-200 transition-colors">
-                  Contact
-                </Link>
-              </nav>
-
+            <nav className="flex space-x-8 text-sm font-light">
+              <Link href="/" className="hover:text-emerald-200 transition-colors">
+                Home
+              </Link>
+              <Link href="/players" className="hover:text-emerald-200 transition-colors">
+                Players
+              </Link>
+              <Link href="/about" className="hover:text-emerald-200 transition-colors">
+                About
+              </Link>
+              <Link href="/contact" className="hover:text-emerald-200 transition-colors">
+                Contact
+              </Link>
+            </nav>
           </div>
         </header>
 
-        {/* Main Content Area */}
-        <main className="flex-1 max-w-6xl w-full mx-auto px-6 py-10">
+        {/* Main Content Area - pt-28 prevents content from hiding behind the fixed header */}
+        <main className="flex-1 max-w-6xl w-full mx-auto px-6 pt-28 pb-10">
           {children}
         </main>
 
