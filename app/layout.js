@@ -1,4 +1,6 @@
+
 import "./globals.css";
+import Link from "next/link"; // <--- ADD THIS LINE HERE
 import { Imperial_Script } from "next/font/google";
 
 const imperialScript = Imperial_Script({
@@ -18,15 +20,27 @@ export default function RootLayout({ children }) {
         {/* Navigation Bar */}
         <header className="bg-[#0f4d3a] text-white px-8 py-4 shadow-sm">
           <div className="max-w-6xl mx-auto flex items-center justify-between">
-            <span className={`${imperialScript.className} text-4xl tracking-wider`}>
+            {/* Logo links back to home */}
+            <Link href="/" className={`${imperialScript.className} text-4xl tracking-wider hover:opacity-90 transition-opacity`}>
               Agave Shooters
-            </span>
-            <nav className="flex space-x-8 text-sm font-light">
-              <a href="#" className="hover:text-emerald-200 transition-colors">Home</a>
-              <a href="#" className="hover:text-emerald-200 transition-colors">Players</a>
-              <a href="#" className="hover:text-emerald-200 transition-colors">About</a>
-              <a href="#" className="hover:text-emerald-200 transition-colors">Contact</a>
-            </nav>
+            </Link>
+
+            {/* Working Navigation Links */}
+              <nav className="flex space-x-8 text-sm font-light">
+                <Link href="/" className="hover:text-emerald-200 transition-colors">
+                   Home
+                </Link>
+                <Link href="/players" className="hover:text-emerald-200 transition-colors">
+                    Players
+                </Link>
+                <Link href="/about" className="hover:text-emerald-200 transition-colors">
+                  About
+                </Link>
+                <Link href="/contact" className="hover:text-emerald-200 transition-colors">
+                  Contact
+                </Link>
+              </nav>
+
           </div>
         </header>
 
@@ -35,10 +49,9 @@ export default function RootLayout({ children }) {
           {children}
         </main>
 
-        {/* Footer Matching Your Figma Design */}
+        {/* Footer */}
         <footer className="bg-[#0f4d3a] text-white py-4 px-8 mt-16">
           <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
-            {/* Left: Script Logo + Subtitle */}
             <div className="flex flex-col items-center sm:items-start leading-tight">
               <span className={`${imperialScript.className} text-3xl tracking-wide`}>
                 Agave Shooters
@@ -48,7 +61,6 @@ export default function RootLayout({ children }) {
               </span>
             </div>
 
-            {/* Right: Copyright */}
             <p className="text-xs text-emerald-100/90 font-light">
               &copy; 2026 Agave Shooters. All rights reserved.
             </p>
