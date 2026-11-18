@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { members } from "@/data/members";
+import MemberCard from "@/components/MemberCard";
 
 export default function PlayersPage() {
   const [selectedFlight, setSelectedFlight] = useState("All");
@@ -47,7 +48,7 @@ export default function PlayersPage() {
             <button
               key={flight}
               onClick={() => setSelectedFlight(flight)}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap ${
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap cursor-pointer ${
                 selectedFlight === flight
                   ? "bg-[#0f4d3a] text-white shadow-sm"
                   : "bg-gray-100 text-gray-600 hover:bg-gray-200"
@@ -70,76 +71,15 @@ export default function PlayersPage() {
         </div>
       </div>
 
-      {/* Profile Cards Grid */}
+      {/* Profile Cards Grid - identical layout to the homepage */}
       {filteredMembers.length === 0 ? (
         <div className="bg-white p-12 rounded-xl border border-gray-200 text-center">
           <p className="text-gray-500 text-sm">No golfers found matching your search.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredMembers.map((member) => (
-            <div
-              key={member.id}
-              className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow"
-            >
-              <div>
-                {/* Header: Initials Avatar + Flight Tag */}
-                <div className="flex items-start justify-between gap-4 mb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-full bg-[#0f4d3a] text-white flex items-center justify-center font-bold text-base shadow-inner">
-                      {member.name
-                        .split(" ")
-                        .map((n) => n[0])
-                        .join("")}
-                    </div>
-                    <div>
-                      <h2 className="text-lg font-bold text-gray-900 leading-snug">
-                        {member.name}
-                      </h2>
-                      <p className="text-xs text-gray-500 font-medium">
-                        Member #{1000 + member.id} • Active
-                      </p>
-                    </div>
-                  </div>
-
-                  <span
-                    className={`text-xs font-bold px-3 py-1 rounded-full ${
-                      member.flight === "A Flight"
-                        ? "bg-emerald-100 text-emerald-800"
-                        : member.flight === "B Flight"
-                        ? "bg-blue-100 text-blue-800"
-                        : "bg-amber-100 text-amber-800"
-                    }`}
-                  >
-                    {member.flight}
-                  </span>
-                </div>
-
-                {/* Stats Breakdown */}
-                <div className="grid grid-cols-3 gap-2 bg-[#f8faf8] border border-gray-100 rounded-lg p-3 text-center my-4">
-                  <div>
-                    <p className="text-[10px] uppercase font-semibold text-gray-500">Handicap</p>
-                    <p className="text-base font-extrabold text-[#0f4d3a]">{member.handicap}</p>
-                  </div>
-                  <div>
-                    <p className="text-[10px] uppercase font-semibold text-gray-500">Bracket</p>
-                    <p className="text-base font-bold text-gray-800">
-                      {member.handicap <= 10 ? "Scratch" : member.handicap <= 18 ? "Mid-Cap" : "High-Cap"}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-[10px] uppercase font-semibold text-gray-500">Status</p>
-                    <p className="text-base font-bold text-emerald-700">Verified</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Card Footer */}
-              <div className="pt-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
-                <span>Agave Shooters VGA</span>
-                <span className="font-semibold text-[#0f4d3a]">Tournament Ready</span>
-              </div>
-            </div>
+            <MemberCard key={member.id} {...member} />
           ))}
         </div>
       )}

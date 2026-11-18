@@ -3,8 +3,18 @@ import MemberCard from "@/components/MemberCard";
 import Link from "next/link";
 
 export default function Home() {
-  // Grab the top 3 members as featured flight leaders
-  const featuredLeaders = members.slice(0, 3);
+  // Automatically finds the golfer with the lowest handicap in each flight
+  const getFlightLeader = (flightName) => {
+    return members
+      .filter((m) => m.flight === flightName)
+      .sort((a, b) => a.handicap - b.handicap)[0];
+  };
+
+  const aLeader = getFlightLeader("A Flight");
+  const bLeader = getFlightLeader("B Flight");
+  const cLeader = getFlightLeader("C Flight");
+
+  const featuredLeaders = [aLeader, bLeader, cLeader].filter(Boolean);
 
   return (
     <div className="space-y-12">
