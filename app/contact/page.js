@@ -42,14 +42,14 @@ export default function ContactPage() {
 
   // The Original 8 Founding Members Honor Roll
   const originalEight = [
-    { name: "Albert Mopia", title: "Founder / President" },
-    { name: "Danny Cruz", title: "Founder / Chairman" },
-    { name: "Ramon Villanueva", title: "Founder / Coordinator" },
-    { name: "Edgar Santos", title: "Founder / Treasurer" },
-    { name: "Noel Reyes", title: "Charter Member" },
-    { name: "Jun Bautista", title: "Charter Member" },
-    { name: "Rey Mendoza", title: "Charter Member" },
-    { name: "Gerry Fernandez", title: "Charter Member" },
+    { name: "Rommel Castro", title: "Founder / President" },
+    { name: "Ray Ramos", title: "Founder / Chairman" },
+    { name: "Arnel Orcino", title: "Founder / Coordinator" },
+    { name: "Rene Abano", title: "Founder / Treasurer" },
+    { name: "Albert Mopia", title: "Charter Member" },
+    { name: "Jonathan Pacleb", title: "Charter Member" },
+    { name: "Ed Felicano", title: "Charter Member" },
+    { name: "Charlie Herradura", title: "Charter Member" },
   ];
 
   return (
