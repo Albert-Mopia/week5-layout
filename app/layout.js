@@ -27,21 +27,31 @@ export default function RootLayout({ children }) {
               Agave Shooters
             </Link>
 
-            {/* Working Navigation Links */}
-            <nav className="flex space-x-8 text-sm font-light">
-              <Link href="/" className="hover:text-emerald-200 transition-colors">
-                Home
-              </Link>
-              <Link href="/players" className="hover:text-emerald-200 transition-colors">
-                Players
-              </Link>
-              <Link href="/about" className="hover:text-emerald-200 transition-colors">
-                About
-              </Link>
-              <Link href="/contact" className="hover:text-emerald-200 transition-colors">
-                Contact
-              </Link>
-            </nav>
+                                {/* Working Navigation Links */}
+          <nav className="flex items-center space-x-8 text-sm font-light">
+            <Link href="/" className="hover:text-emerald-200 transition-colors">
+              Home
+            </Link>
+            <Link href="/players" className="hover:text-emerald-200 transition-colors">
+              Players
+            </Link>
+            <Link href="/about" className="hover:text-emerald-200 transition-colors">
+              About
+            </Link>
+            <Link href="/contact" className="hover:text-emerald-200 transition-colors">
+              Contact
+            </Link>
+
+            {/* Far Right Button Style */}
+            <Link
+              href="/calculator"
+              className="bg-emerald-500 hover:bg-emerald-400 text-white font-bold text-xs px-4 py-2 rounded-full transition-all shadow-sm hover:shadow"
+            >
+              Calculator
+            </Link>
+          </nav>
+
+
           </div>
         </header>
 

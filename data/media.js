@@ -1,0 +1,48 @@
+export const mediaItems = [
+  {
+    id: 1,
+    type: "video",
+    title: "Torrey Pines Long Drive Contest",
+    event: "Monthly Club Major",
+    date: "Oct 2026",
+    // Just paste the YouTube video ID (the letters at the end of watch?v=)
+    youtubeId: "dQw4w9WgXcQ", 
+    caption: "Jack Ammo clearing 310 yards on hole 14 fairway.",
+  },
+  {
+    id: 2,
+    type: "photo",
+    title: "Championship Trophy Ceremony",
+    event: "Balboa Park Classic",
+    date: "Sep 2026",
+    url: "https://images.unsplash.com/photo-1587174486073-ae5e5cff23aa?auto=format&fit=crop&w=1200&q=80",
+    caption: "Albert Mopia taking home the A Flight 1st place hardware.",
+  },
+  {
+    id: 3,
+    type: "video",
+    title: "Clutch Eagle Putt on Hole 18",
+    event: "Coronado Invitational",
+    date: "Aug 2026",
+    youtubeId: "LXb3EKWsInQ",
+    caption: "Drain from 28 feet to seal the team scramble win.",
+  },
+  {
+    id: 4,
+    type: "photo",
+    title: "Morning Tee Off Group Photo",
+    event: "Steele Canyon Scramble",
+    date: "Jul 2026",
+    url: "https://images.unsplash.com/photo-1535131749006-b7f58c99034b?auto=format&fit=crop&w=1200&q=80",
+    caption: "All 36 Agave Shooters lined up before the 7:00 AM shotgun start.",
+  },
+  {
+    id: 5,
+    type: "photo",
+    title: "Sunset Over Coronado Fairway",
+    event: "Coronado Invitational",
+    date: "Aug 2026",
+    url: "https://images.unsplash.com/photo-1592919505780-303950717480?auto=format&fit=crop&w=1200&q=80",
+    caption: "Perfect conditions for the back nine finish.",
+  },
+];
