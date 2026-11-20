@@ -8,7 +8,7 @@ const imperialScript = Imperial_Script({
 });
 
 export const metadata = {
-  title: "Agave Golf Club Member Dashboard",
+  title: "Agave Shooters Golf Club | San Diego, CA",
   description: "Military Veterans Golf Association Tournament Management Platform",
 };
 
@@ -27,31 +27,32 @@ export default function RootLayout({ children }) {
               Agave Shooters
             </Link>
 
-                                {/* Working Navigation Links */}
-          <nav className="flex items-center space-x-8 text-sm font-light">
-            <Link href="/" className="hover:text-emerald-200 transition-colors">
-              Home
-            </Link>
-            <Link href="/players" className="hover:text-emerald-200 transition-colors">
-              Players
-            </Link>
-            <Link href="/about" className="hover:text-emerald-200 transition-colors">
-              About
-            </Link>
-            <Link href="/contact" className="hover:text-emerald-200 transition-colors">
-              Contact
-            </Link>
+            {/* Working Navigation Links */}
+            <nav className="flex items-center space-x-6 sm:space-x-8 text-sm font-light">
+              <Link href="/" className="hover:text-emerald-200 transition-colors">
+                Home
+              </Link>
+              <Link href="/players" className="hover:text-emerald-200 transition-colors">
+                Players
+              </Link>
+              <Link href="/gallery" className="hover:text-emerald-200 transition-colors">
+                Gallery
+              </Link>
+              <Link href="/about" className="hover:text-emerald-200 transition-colors">
+                About
+              </Link>
+              <Link href="/contact" className="hover:text-emerald-200 transition-colors">
+                Contact
+              </Link>
 
-            {/* Far Right Button Style */}
-            <Link
-              href="/calculator"
-              className="bg-emerald-500 hover:bg-emerald-400 text-white font-bold text-xs px-4 py-2 rounded-full transition-all shadow-sm hover:shadow"
-            >
-              Calculator
-            </Link>
-          </nav>
-
-
+              {/* Far Right Button Style */}
+              <Link
+                href="/calculator"
+                className="bg-emerald-500 hover:bg-emerald-400 text-white font-bold text-xs px-4 py-2 rounded-full transition-all shadow-sm hover:shadow"
+              >
+                Calculator
+              </Link>
+            </nav>
           </div>
         </header>
 
@@ -60,21 +61,91 @@ export default function RootLayout({ children }) {
           {children}
         </main>
 
-        {/* Footer */}
-        <footer className="bg-[#0f4d3a] text-white py-4 px-8 mt-16">
-          <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
-            <div className="flex flex-col items-center sm:items-start leading-tight">
-              <span className={`${imperialScript.className} text-3xl tracking-wide`}>
-                Agave Shooters
-              </span>
-              <span className="text-[11px] font-light text-emerald-100 tracking-wider -mt-1">
-                Veterans Golf Association
-              </span>
+        {/* Enhanced Club Footer with Official Golf Resources */}
+        <footer className="bg-[#0f4d3a] text-white pt-10 pb-6 px-8 mt-16 border-t-4 border-emerald-600">
+          <div className="max-w-6xl mx-auto space-y-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pb-6 border-b border-emerald-800/60">
+              
+              {/* 1. Club Identity */}
+              <div className="flex flex-col items-start leading-tight space-y-2">
+                <span className={`${imperialScript.className} text-4xl tracking-wide`}>
+                  Agave Shooters
+                </span>
+                <span className="text-xs font-medium text-emerald-200 uppercase tracking-widest">
+                  Veterans Golf Association • San Diego, CA
+                </span>
+                <p className="text-xs text-emerald-100/80 font-light leading-relaxed pt-1">
+                  Dedicated to veteran brotherhood, competitive flight play, and the timeless integrity of the game.
+                </p>
+              </div>
+
+              {/* 2. Official USGA & Handicap Links */}
+              <div className="space-y-3">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-300">
+                  Official Golf Portals
+                </h4>
+                <ul className="space-y-2 text-xs font-light">
+                  <li>
+                    <a
+                      href="https://www.ghin.com"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:text-emerald-300 text-emerald-50 flex items-center gap-1.5 transition-colors"
+                    >
+                      <span>📱</span> GHIN Portal (Post Score / Lookup) ↗
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="https://www.usga.org/rules-hub.html"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:text-emerald-300 text-emerald-50 flex items-center gap-1.5 transition-colors"
+                    >
+                      <span>📖</span> Official USGA Rules of Golf ↗
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="https://www.scga.org"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:text-emerald-300 text-emerald-50 flex items-center gap-1.5 transition-colors"
+                    >
+                      <span>🏆</span> SCGA (Southern California Golf Assoc.) ↗
+                    </a>
+                  </li>
+                </ul>
+              </div>
+
+              {/* 3. Club Quick Links */}
+              <div className="space-y-3">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-300">
+                  Quick Navigation
+                </h4>
+                <div className="flex flex-col space-y-1.5 text-xs font-light text-emerald-50">
+                  <Link href="/players" className="hover:text-emerald-300 transition-colors">
+                    Flight Player Directory →
+                  </Link>
+                  <Link href="/gallery" className="hover:text-emerald-300 transition-colors">
+                    Tournament Photo & Video Gallery →
+                  </Link>
+                  <Link href="/calculator" className="hover:text-emerald-300 transition-colors">
+                    Course Handicap Calculator →
+                  </Link>
+                  <Link href="/contact" className="hover:text-emerald-300 transition-colors">
+                    Confirm Tee Time & Contact Officers →
+                  </Link>
+                </div>
+              </div>
+
             </div>
 
-            <p className="text-xs text-emerald-100/90 font-light">
-              &copy; 2026 Agave Shooters. All rights reserved.
-            </p>
+            {/* Bottom Copyright & Compliance Line */}
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-emerald-200/70 font-light">
+              <p>&copy; 2026 Agave Shooters. All rights reserved.</p>
+              <p>Handicap calculations comply with USGA / WHS guidelines.</p>
+            </div>
           </div>
         </footer>
       </body>
