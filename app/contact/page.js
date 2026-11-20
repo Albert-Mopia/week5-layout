@@ -8,7 +8,7 @@ export default function ContactPage() {
   const officers = [
     {
       title: "Club President",
-      name: "Albert Mopia",
+      name: "Jojo Abad",
       role: "Executive Operations & Club Direction",
       phone: "(619) 555-0101",
       email: "president@agaveshooters.com",
@@ -16,7 +16,7 @@ export default function ContactPage() {
     },
     {
       title: "Board Chairman",
-      name: "Danny Cruz",
+      name: "Paolo Saldua",
       role: "Governance, Constitution & By-Laws",
       phone: "(619) 555-0102",
       email: "chairman@agaveshooters.com",
@@ -24,7 +24,7 @@ export default function ContactPage() {
     },
     {
       title: "Tee Time Coordinator",
-      name: "Ramon Villanueva",
+      name: "Jim Ona",
       role: "Shotgun Rosters, Course Bookings & Pairings",
       phone: "(619) 555-0103",
       email: "teetimes@agaveshooters.com",
@@ -32,7 +32,7 @@ export default function ContactPage() {
     },
     {
       title: "Treasurer / Secretary",
-      name: "Edgar Santos",
+      name: "Rene Abano",
       role: "Prize Pools, Flights & Financial Records",
       phone: "(619) 555-0104",
       email: "treasury@agaveshooters.com",
