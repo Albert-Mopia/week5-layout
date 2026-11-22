@@ -4,8 +4,8 @@ export const members = [
     name: "Albert Mopia",
     flight: "B Flight",
     handicap: 10.9,
-    phone: "(619) 555-0101",
-    email: "albert.mopia@agaveshooters.com",
+    phone: "(619) 206-3630",
+    email: "albert.mopia@yahoo.com",
     image: "/players/albert-mopia.jpg",
   },
   {
