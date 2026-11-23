@@ -7,46 +7,69 @@ import { calculateDifferential, calculateHandicapIndex } from "@/lib/handicap";
 export default function HandicapCalculatorPage() {
   const [membersList, setMembersList] = useState([]);
   const [selectedMemberId, setSelectedMemberId] = useState("");
-  
+
   // Score form state
   const [grossScore, setGrossScore] = useState("");
   const [courseName, setCourseName] = useState("Coronado Golf Course");
   const [courseRating, setCourseRating] = useState("71.5");
   const [slopeRating, setSlopeRating] = useState("121");
-  const [roundDate, setRoundDate] = useState(new Date().toISOString().split("T")[0]);
+  const [roundDate, setRoundDate] = useState(
+    new Date().toISOString().split("T")[0]
+  );
 
-  // Load members and saved score histories from localStorage
+  // Sync real members from data/members with any locally saved rounds
   useEffect(() => {
-    const saved = localStorage.getItem("agave_roster_data");
-    if (saved) {
-      setMembersList(JSON.parse(saved));
-    } else {
-      // Seed initial history with a dummy differential matching their starting handicap
-      const initialized = defaultMembers.map((m) => ({
-        ...m,
-        rounds: [
-          {
-            date: "Initial Baseline",
-            course: "Club Placement",
-            grossScore: Math.round(72 + m.handicap),
-            courseRating: 72.0,
-            slopeRating: 113,
-            differential: m.handicap,
-          },
-        ],
-      }));
-      setMembersList(initialized);
-      localStorage.setItem("agave_roster_data", JSON.stringify(initialized));
+    try {
+      const saved = localStorage.getItem("agave_roster_data");
+      const parsedSaved = saved ? JSON.parse(saved) : [];
+
+      // Map over your real members list
+      const synced = (defaultMembers || []).map((realMember) => {
+        const existing = parsedSaved.find((s) => s.id === realMember.id);
+
+        if (existing && existing.rounds && existing.rounds.length > 0) {
+          return {
+            ...realMember,
+            handicap: existing.handicap ?? realMember.handicap,
+            rounds: existing.rounds,
+            flight: existing.flight ?? realMember.flight,
+          };
+        }
+
+        // Initialize new member baseline
+        return {
+          ...realMember,
+          rounds: [
+            {
+              date: "Initial Baseline",
+              course: "Club Placement",
+              grossScore: Math.round(72 + (realMember.handicap || 0)),
+              courseRating: 72.0,
+              slopeRating: 113,
+              differential: realMember.handicap || 0,
+            },
+          ],
+        };
+      });
+
+      // Sort alphabetically by name
+      synced.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+
+      setMembersList(synced);
+      localStorage.setItem("agave_roster_data", JSON.stringify(synced));
+    } catch (err) {
+      console.error("Error loading roster:", err);
+      setMembersList(defaultMembers || []);
     }
   }, []);
 
   const selectedMember = membersList.find(
-    (m) => m.id === Number(selectedMemberId)
+    (m) => String(m.id) === String(selectedMemberId)
   );
 
   // Recalculate 1/3 equal flight brackets dynamically
   const rebalanceFlights = (roster) => {
-    const sorted = [...roster].sort((a, b) => a.handicap - b.handicap);
+    const sorted = [...roster].sort((a, b) => (a.handicap || 0) - (b.handicap || 0));
     const tierSize = Math.ceil(sorted.length / 3);
 
     return sorted.map((player, index) => {
@@ -108,19 +131,37 @@ export default function HandicapCalculatorPage() {
     alert(`Score posted for ${selectedMember.name}! New Handicap: ${newHandicap}`);
   };
 
+  // Reset to fresh roster button (handy for testing)
+  const handleResetToRoster = () => {
+    if (confirm("Reset all calculator history back to the default member file?")) {
+      localStorage.removeItem("agave_roster_data");
+      window.location.reload();
+    }
+  };
+
   return (
     <div className="max-w-4xl mx-auto space-y-8 pb-12">
       {/* Page Header */}
-      <div className="bg-white p-6 sm:p-8 rounded-2xl border border-gray-200 shadow-sm">
-        <span className="text-xs font-bold uppercase tracking-wider text-emerald-800 bg-emerald-100 px-2.5 py-1 rounded-full">
-          Official WHS Engine
-        </span>
-        <h1 className="text-3xl font-extrabold text-gray-950 mt-2">
-          In-House Handicap Calculator
-        </h1>
-        <p className="text-sm text-gray-600 mt-1">
-          Post round scores. The system will automatically compute differentials, recalculate handicaps, and reassign flight tiers.
-        </p>
+      <div className="bg-white p-6 sm:p-8 rounded-2xl border border-gray-200 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <span className="text-xs font-bold uppercase tracking-wider text-emerald-800 bg-emerald-100 px-2.5 py-1 rounded-full">
+            Official WHS Engine
+          </span>
+          <h1 className="text-3xl font-extrabold text-gray-950 mt-2">
+            In-House Handicap Calculator
+          </h1>
+          <p className="text-sm text-gray-600 mt-1">
+            Post round scores. The system will automatically compute differentials, recalculate handicaps, and reassign flight tiers.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={handleResetToRoster}
+          className="text-xs text-gray-400 hover:text-red-600 underline font-medium self-start sm:self-auto cursor-pointer"
+        >
+          Reset Data
+        </button>
       </div>
 
       {/* Main Grid: Form on Left, Player History on Right */}
@@ -133,7 +174,7 @@ export default function HandicapCalculatorPage() {
             {/* Select Golfer */}
             <div>
               <label className="block text-xs font-bold text-gray-700 uppercase mb-1">
-                Select Golfer
+                Select Golfer ({membersList.length} Members)
               </label>
               <select
                 value={selectedMemberId}
@@ -144,7 +185,7 @@ export default function HandicapCalculatorPage() {
                 <option value="">-- Choose Golfer --</option>
                 {membersList.map((m) => (
                   <option key={m.id} value={m.id}>
-                    {m.name} ({m.flight} • HCP {m.handicap})
+                    {m.name} ({m.flight || "No Flight"} • HCP {m.handicap ?? 0})
                   </option>
                 ))}
               </select>
@@ -244,7 +285,7 @@ export default function HandicapCalculatorPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-xl font-black text-gray-950">{selectedMember.name}</h3>
-                    <p className="text-xs text-gray-500">Agave Shooters Member #{1000 + selectedMember.id}</p>
+                    <p className="text-xs text-gray-500">Agave Shooters Member #{1000 + Number(selectedMember.id)}</p>
                   </div>
                   <span
                     className={`text-xs font-bold px-3 py-1 rounded-full ${
