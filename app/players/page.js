@@ -1,16 +1,32 @@
 "use client";
-import { membersRounds, calculateRollingHcp } from "@/data/roundsData";
 import { useState } from "react";
 import Image from "next/image";
-import { members } from "@/data/members"; // Adjust path if your members.js is in /lib or /app
+import { members } from "@/data/members";
+import { membersRounds } from "@/data/roundsData";
 
 export default function PlayersPage() {
-  const [statusFilter, setStatusFilter] = useState("Active"); // 'Active', 'Non-Active', or 'All'
+  const [statusFilter, setStatusFilter] = useState("Active");
   const [searchQuery, setSearchQuery] = useState("");
   const [flightFilter, setFlightFilter] = useState("All");
 
+  const safeMembers = Array.isArray(members) ? members : [];
+  const safeRounds = Array.isArray(membersRounds) ? membersRounds : [];
+
+  // Merge members info with rounds data
+  const roster = safeMembers.map((m) => {
+    const roundInfo = safeRounds.find(
+      (r) => r?.id === m?.id || (r?.name && m?.name && r.name.toLowerCase() === m.name.toLowerCase())
+    );
+    return {
+      ...m,
+      displayHcp: roundInfo?.currentHcp ?? m?.handicap ?? 0,
+      totalRounds: roundInfo?.scores?.length ?? 0,
+    };
+  });
+
   // Filter members by Status, Flight, and Search
-  const filteredMembers = members.filter((member) => {
+  const filteredMembers = roster.filter((member) => {
+    if (!member) return false;
     const matchesStatus =
       statusFilter === "All" ? true : member.status === statusFilter;
 
@@ -19,7 +35,7 @@ export default function PlayersPage() {
 
     const query = searchQuery.toLowerCase();
     const matchesSearch =
-      member.name.toLowerCase().includes(query) ||
+      (member.name && member.name.toLowerCase().includes(query)) ||
       (member.nickname && member.nickname.toLowerCase().includes(query)) ||
       (member.email && member.email.toLowerCase().includes(query));
 
@@ -43,11 +59,11 @@ export default function PlayersPage() {
 
           {/* Quick Stats Pill */}
           <div className="inline-flex items-center gap-3 bg-white px-4 py-2 rounded-2xl border border-gray-200 shadow-sm text-xs font-bold text-gray-700">
-            <span>Total: <strong className="text-gray-900">{members.length}</strong></span>
+            <span>Total: <strong className="text-gray-900">{safeMembers.length}</strong></span>
             <span className="text-gray-300">|</span>
-            <span className="text-emerald-700">Active: <strong>{members.filter((m) => m.status === "Active").length}</strong></span>
+            <span className="text-emerald-700">Active: <strong>{safeMembers.filter((m) => m?.status === "Active").length}</strong></span>
             <span className="text-gray-300">|</span>
-            <span className="text-gray-500">Non-Active: <strong>{members.filter((m) => m.status === "Non-Active").length}</strong></span>
+            <span className="text-gray-500">Non-Active: <strong>{safeMembers.filter((m) => m?.status === "Non-Active").length}</strong></span>
           </div>
         </div>
 
@@ -60,8 +76,8 @@ export default function PlayersPage() {
             {["Active", "Non-Active", "All"].map((tab) => {
               const count =
                 tab === "All"
-                  ? members.length
-                  : members.filter((m) => m.status === tab).length;
+                  ? safeMembers.length
+                  : safeMembers.filter((m) => m?.status === tab).length;
 
               return (
                 <button
@@ -80,9 +96,8 @@ export default function PlayersPage() {
             })}
           </div>
 
-          {/* Flight Tabs + Search Bar */}
+          {/* Flight Dropdown + Search Input */}
           <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
-            {/* Flight Dropdown */}
             <select
               value={flightFilter}
               onChange={(e) => setFlightFilter(e.target.value)}
@@ -94,7 +109,6 @@ export default function PlayersPage() {
               <option value="C Flight">C Flight</option>
             </select>
 
-            {/* Search Input */}
             <input
               type="text"
               placeholder="Search by name, nickname, or email..."
@@ -131,7 +145,6 @@ export default function PlayersPage() {
                     {member.flight}
                   </span>
 
-                  {/* Colored Status Badge */}
                   <span
                     className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
                       member.status === "Active"
@@ -148,7 +161,7 @@ export default function PlayersPage() {
                   </span>
                 </div>
 
-                {/* Profile Header: Avatar + Names */}
+                {/* Profile Header */}
                 <div className="flex items-center gap-3.5">
                   <div className="relative w-12 h-12 rounded-full overflow-hidden bg-gray-100 border border-gray-200 shrink-0 flex items-center justify-center font-black text-gray-500 text-sm">
                     {member.image ? (
@@ -160,7 +173,7 @@ export default function PlayersPage() {
                         sizes="48px"
                       />
                     ) : (
-                      <span>{member.name.charAt(0)}</span>
+                      <span>{member.name ? member.name.charAt(0) : "M"}</span>
                     )}
                   </div>
 
@@ -179,14 +192,23 @@ export default function PlayersPage() {
                   </div>
                 </div>
 
-                {/* Bottom Row: Handicap & Tee Box */}
+                {/* Bottom Row: Handicap, Rounds & Tee Box */}
                 <div className="pt-3 border-t border-gray-100 flex justify-between items-center text-xs">
                   <div>
                     <span className="text-gray-400 block text-[10px] uppercase font-bold tracking-wider">
                       Agave HCP
                     </span>
                     <span className="text-lg font-black text-[#0f4d3a]">
-                      {member.handicap.toFixed(2)}
+                      {Number(member.displayHcp || 0).toFixed(1)}
+                    </span>
+                  </div>
+
+                  <div>
+                    <span className="text-gray-400 block text-[10px] uppercase font-bold tracking-wider">
+                      Rounds
+                    </span>
+                    <span className="text-sm font-bold text-gray-700">
+                      {member.totalRounds}
                     </span>
                   </div>
 
@@ -195,7 +217,7 @@ export default function PlayersPage() {
                       Tee Box
                     </span>
                     <span className="font-bold text-gray-800">
-                      ⛳ {member.tee}
+                      ⛳ {member.tee || "White"}
                     </span>
                   </div>
                 </div>
