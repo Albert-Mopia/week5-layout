@@ -2,7 +2,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { members } from "@/data/members";
-import { membersRounds } from "@/data/roundsData";
+import { membersRounds, calculateRollingHcp } from "@/data/roundsData";
 
 export default function PlayersPage() {
   const [statusFilter, setStatusFilter] = useState("Active");
@@ -12,19 +12,29 @@ export default function PlayersPage() {
   const safeMembers = Array.isArray(members) ? members : [];
   const safeRounds = Array.isArray(membersRounds) ? membersRounds : [];
 
-  // Merge members info with rounds data
+  // Merge members with calculated handicap
   const roster = safeMembers.map((m) => {
     const roundInfo = safeRounds.find(
-      (r) => r?.id === m?.id || (r?.name && m?.name && r.name.toLowerCase() === m.name.toLowerCase())
+      (r) =>
+        r?.id === m?.id ||
+        (r?.name && m?.name && r.name.toLowerCase() === m.name.toLowerCase())
     );
+
+    const hasScores = roundInfo?.scores && roundInfo.scores.length > 0;
+
+    // Calculates rolling HCP automatically if scores exist, otherwise falls back to static handicap
+    const computedHcp = hasScores
+      ? calculateRollingHcp(roundInfo.scores)
+      : (m?.handicap ?? 0);
+
     return {
       ...m,
-      displayHcp: roundInfo?.currentHcp ?? m?.handicap ?? 0,
-      totalRounds: roundInfo?.scores?.length ?? 0,
+      displayHcp: computedHcp,
+      totalRounds: roundInfo?.scores?.length ?? m?.rounds ?? 0,
     };
   });
 
-  // Filter members by Status, Flight, and Search
+  // Filter members
   const filteredMembers = roster.filter((member) => {
     if (!member) return false;
     const matchesStatus =
@@ -57,7 +67,7 @@ export default function PlayersPage() {
             </p>
           </div>
 
-          {/* Quick Stats Pill */}
+          {/* Quick Stats */}
           <div className="inline-flex items-center gap-3 bg-white px-4 py-2 rounded-2xl border border-gray-200 shadow-sm text-xs font-bold text-gray-700">
             <span>Total: <strong className="text-gray-900">{safeMembers.length}</strong></span>
             <span className="text-gray-300">|</span>
@@ -69,8 +79,6 @@ export default function PlayersPage() {
 
         {/* Filter Controls Bar */}
         <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-sm flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between">
-          
-          {/* Status Tabs */}
           <div className="flex items-center gap-2">
             <span className="text-xs font-bold uppercase text-gray-400 mr-1">Status:</span>
             {["Active", "Non-Active", "All"].map((tab) => {
@@ -96,7 +104,6 @@ export default function PlayersPage() {
             })}
           </div>
 
-          {/* Flight Dropdown + Search Input */}
           <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
             <select
               value={flightFilter}
@@ -131,7 +138,6 @@ export default function PlayersPage() {
                 key={member.id}
                 className="bg-white rounded-2xl p-5 border border-gray-200 shadow-sm hover:shadow-md transition space-y-4 flex flex-col justify-between"
               >
-                {/* Top Row: Flight Badge & Status Badge */}
                 <div className="flex items-center justify-between">
                   <span
                     className={`text-[11px] font-extrabold uppercase px-2.5 py-1 rounded-md tracking-wider ${
@@ -161,7 +167,6 @@ export default function PlayersPage() {
                   </span>
                 </div>
 
-                {/* Profile Header */}
                 <div className="flex items-center gap-3.5">
                   <div className="relative w-12 h-12 rounded-full overflow-hidden bg-gray-100 border border-gray-200 shrink-0 flex items-center justify-center font-black text-gray-500 text-sm">
                     {member.image ? (
@@ -192,7 +197,6 @@ export default function PlayersPage() {
                   </div>
                 </div>
 
-                {/* Bottom Row: Handicap, Rounds & Tee Box */}
                 <div className="pt-3 border-t border-gray-100 flex justify-between items-center text-xs">
                   <div>
                     <span className="text-gray-400 block text-[10px] uppercase font-bold tracking-wider">
