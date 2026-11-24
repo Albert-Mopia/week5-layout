@@ -5,8 +5,12 @@ import { useState, useMemo } from "react";
 export default function MemberCard({
   id,
   name,
+  nickname,
   flight,
   handicap,
+  tee,
+  status = "Active",
+  isMember = true,
   phone,
   email,
   image,
@@ -15,13 +19,25 @@ export default function MemberCard({
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isHandicapOpen, setIsHandicapOpen] = useState(false);
 
-  // Initials fallback
-  const initials = name
-    ? name
-        .split(" ")
-        .map((n) => n[0])
-        .join("")
-    : "AS";
+  // Format "Last, First" into "First Last" if comma exists
+  const formattedName = useMemo(() => {
+    if (!name) return "Unknown Golfer";
+    if (name.includes(",")) {
+      const [last, first] = name.split(",").map((s) => s.trim());
+      return `${first} ${last}`;
+    }
+    return name;
+  }, [name]);
+
+  // Initials fallback (e.g., "Abad, Rolando" -> "RA")
+  const initials = useMemo(() => {
+    if (!name) return "AS";
+    const parts = name.replace(/[^a-zA-Z\s]/g, "").trim().split(/\s+/);
+    if (parts.length >= 2) {
+      return `${parts[1][0]}${parts[0][0]}`.toUpperCase();
+    }
+    return parts[0]?.[0]?.toUpperCase() || "AS";
+  }, [name]);
 
   // Build or use 20 rounds of scoring history
   const recentRounds = useMemo(() => {
@@ -29,7 +45,6 @@ export default function MemberCard({
       return customRounds.slice(-20);
     }
 
-    // Realistic golf courses in the rotation
     const courses = [
       { name: "Coronado Golf Course", rating: 71.5, slope: 121 },
       { name: "Balboa Park Golf Course", rating: 71.1, slope: 125 },
@@ -38,14 +53,15 @@ export default function MemberCard({
       { name: "Admiral Baker (South)", rating: 70.4, slope: 119 },
     ];
 
-    // Variance pattern around player's handicap to simulate 20 rounds
     const offsets = [
       -2, 3, 0, 5, -1, 2, 4, -3, 1, 6, -1, 0, 2, -2, 4, 1, 7, -1, 3, 0,
     ];
 
+    const baseHandicap = typeof handicap === "number" ? handicap : parseFloat(handicap) || 10;
+
     return offsets.map((offset, idx) => {
       const course = courses[idx % courses.length];
-      const targetDiff = Math.max(0, parseFloat((handicap + offset).toFixed(1)));
+      const targetDiff = Math.max(0, parseFloat((baseHandicap + offset).toFixed(1)));
       const gross = Math.round(targetDiff * (course.slope / 113) + course.rating);
       const diff = parseFloat(((113 / course.slope) * (gross - course.rating)).toFixed(1));
 
@@ -59,7 +75,7 @@ export default function MemberCard({
     });
   }, [handicap, customRounds]);
 
-  // Find the lowest 8 differentials (WHS official counted rounds)
+  // Find lowest 8 differentials
   const lowest8Indices = useMemo(() => {
     const sorted = recentRounds
       .map((r, i) => ({ diff: r.differential, index: i }))
@@ -68,7 +84,7 @@ export default function MemberCard({
     return new Set(sorted.map((item) => item.index));
   }, [recentRounds]);
 
-  // Calculate stats
+  // Calculated stats
   const averageGross = useMemo(() => {
     const total = recentRounds.reduce((acc, r) => acc + r.grossScore, 0);
     return (total / recentRounds.length).toFixed(1);
@@ -80,31 +96,48 @@ export default function MemberCard({
     return (total / best8.length).toFixed(1);
   }, [recentRounds, lowest8Indices]);
 
+  // Flight badge colors
+  const flightBadgeStyle =
+    flight === "A Flight"
+      ? "bg-emerald-100 text-emerald-800"
+      : flight === "B Flight"
+      ? "bg-blue-100 text-blue-800"
+      : "bg-amber-100 text-amber-800";
+
   return (
     <>
-      {/* 1. Main Card Surface */}
+      {/* 1. Main Card */}
       <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
         <div>
-          {/* Flight Badge */}
-          <span
-            className={`inline-block text-xs font-bold px-3 py-1 rounded-full mb-3 ${
-              flight === "A Flight"
-                ? "bg-emerald-100 text-emerald-800"
-                : flight === "B Flight"
-                ? "bg-blue-100 text-blue-800"
-                : "bg-amber-100 text-amber-800"
-            }`}
-          >
-            {flight}
-          </span>
+          <div className="flex items-center justify-between mb-3">
+            <span className={`text-xs font-bold px-3 py-1 rounded-full ${flightBadgeStyle}`}>
+              {flight}
+            </span>
+            {tee && (
+              <span className="text-[11px] font-medium text-gray-500 bg-gray-100 px-2 py-0.5 rounded-md">
+                ⛳ {tee}
+              </span>
+            )}
+          </div>
 
-          <h3 className="text-xl font-extrabold text-gray-950">{name}</h3>
-          <p className="text-sm text-gray-600 mt-1">
-            Handicap: <span className="font-bold text-gray-900">{handicap}</span>
+          <h3 className="text-lg font-black text-gray-950 flex items-center gap-1.5 flex-wrap">
+            {formattedName}
+            {nickname && (
+              <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">
+                "{nickname}"
+              </span>
+            )}
+          </h3>
+
+          <p className="text-sm text-gray-600 mt-2">
+            Handicap Index:{" "}
+            <span className="font-extrabold text-[#0f4d3a]">
+              {typeof handicap === "number" ? handicap.toFixed(2) : handicap}
+            </span>
           </p>
         </div>
 
-        {/* Action Buttons: View Detail & Last 20 Rounds */}
+        {/* Buttons */}
         <div className="pt-5 grid grid-cols-2 gap-2">
           <button
             type="button"
@@ -149,7 +182,7 @@ export default function MemberCard({
                 {image ? (
                   <img
                     src={image}
-                    alt={name}
+                    alt={formattedName}
                     className="w-24 h-24 rounded-full border-4 border-white object-cover shadow-md bg-gray-100"
                   />
                 ) : (
@@ -158,58 +191,71 @@ export default function MemberCard({
                   </div>
                 )}
 
-                <span
-                  className={`text-xs font-bold px-3 py-1 rounded-full ${
-                    flight === "A Flight"
-                      ? "bg-emerald-100 text-emerald-800"
-                      : flight === "B Flight"
-                      ? "bg-blue-100 text-blue-800"
-                      : "bg-amber-100 text-amber-800"
-                  }`}
-                >
+                <span className={`text-xs font-bold px-3 py-1 rounded-full ${flightBadgeStyle}`}>
                   {flight}
                 </span>
               </div>
 
-              <h2 className="text-2xl font-black text-gray-900">{name}</h2>
+              <h2 className="text-2xl font-black text-gray-900 flex items-center gap-2 flex-wrap">
+                {formattedName}
+                {nickname && (
+                  <span className="text-sm font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                    "{nickname}"
+                  </span>
+                )}
+              </h2>
               <p className="text-xs text-gray-500 font-medium mt-0.5">
-                Agave Shooters Member • Active Status
+                Agave Shooters Member • {status}
               </p>
 
-              <div className="grid grid-cols-2 gap-3 my-5 bg-gray-50 p-3 rounded-xl border border-gray-100 text-center">
+              {/* Stats & Tee Grid */}
+              <div className="grid grid-cols-3 gap-2 my-5 bg-gray-50 p-3 rounded-xl border border-gray-100 text-center">
                 <div>
-                  <span className="text-[10px] uppercase font-bold text-gray-400">
-                    Handicap Index
-                  </span>
-                  <p className="text-xl font-black text-[#0f4d3a]">{handicap}</p>
+                  <span className="text-[10px] uppercase font-bold text-gray-400">Handicap</span>
+                  <p className="text-lg font-black text-[#0f4d3a]">
+                    {typeof handicap === "number" ? handicap.toFixed(2) : handicap}
+                  </p>
                 </div>
                 <div>
-                  <span className="text-[10px] uppercase font-bold text-gray-400">
-                    Flight Bracket
-                  </span>
-                  <p className="text-base font-bold text-gray-800 mt-1">{flight}</p>
+                  <span className="text-[10px] uppercase font-bold text-gray-400">Tee Box</span>
+                  <p className="text-xs font-bold text-gray-800 mt-1 truncate" title={tee}>
+                    {tee || "Standard"}
+                  </p>
+                </div>
+                <div>
+                  <span className="text-[10px] uppercase font-bold text-gray-400">Flight</span>
+                  <p className="text-xs font-bold text-gray-800 mt-1">{flight}</p>
                 </div>
               </div>
 
+              {/* Contact Info */}
               <div className="space-y-3 border-t border-gray-100 pt-4 text-sm">
                 <div className="flex items-center justify-between">
                   <span className="text-gray-500 text-xs font-medium">📞 Phone:</span>
-                  <a
-                    href={`tel:${phone || ""}`}
-                    className="font-semibold text-[#0f4d3a] hover:underline text-xs"
-                  >
-                    {phone || "Not on file"}
-                  </a>
+                  {phone ? (
+                    <a
+                      href={`tel:${phone}`}
+                      className="font-semibold text-[#0f4d3a] hover:underline text-xs"
+                    >
+                      {phone}
+                    </a>
+                  ) : (
+                    <span className="text-xs text-gray-400 italic">Not on file</span>
+                  )}
                 </div>
 
                 <div className="flex items-center justify-between">
                   <span className="text-gray-500 text-xs font-medium">✉️ Email:</span>
-                  <a
-                    href={`mailto:${email || ""}`}
-                    className="font-semibold text-[#0f4d3a] hover:underline text-xs truncate max-w-[200px]"
-                  >
-                    {email || "Not on file"}
-                  </a>
+                  {email ? (
+                    <a
+                      href={`mailto:${email}`}
+                      className="font-semibold text-[#0f4d3a] hover:underline text-xs truncate max-w-[210px]"
+                    >
+                      {email}
+                    </a>
+                  ) : (
+                    <span className="text-xs text-gray-400 italic">Not on file</span>
+                  )}
                 </div>
               </div>
 
@@ -237,7 +283,7 @@ export default function MemberCard({
         </div>
       )}
 
-      {/* 3. Modal: Last 20 Rounds & Handicap Calculation */}
+      {/* 3. Modal: Last 20 Rounds */}
       {isHandicapOpen && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
@@ -247,16 +293,13 @@ export default function MemberCard({
             className="bg-white w-full max-w-lg rounded-2xl shadow-2xl border border-gray-100 overflow-hidden relative flex flex-col max-h-[90vh]"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Header */}
             <div className="bg-[#0f4d3a] p-5 text-white flex items-center justify-between">
               <div>
                 <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-200">
                   USGA Scoring Record
                 </span>
-                <h3 className="text-xl font-black">{name}</h3>
-                <p className="text-xs text-emerald-100">
-                  Last 20 Rounds • {flight}
-                </p>
+                <h3 className="text-xl font-black">{formattedName}</h3>
+                <p className="text-xs text-emerald-100">Last 20 Rounds • {flight}</p>
               </div>
               <button
                 type="button"
@@ -267,35 +310,29 @@ export default function MemberCard({
               </button>
             </div>
 
-            {/* Quick Metrics (Last 20 Avg vs Best 8 Avg Index) */}
             <div className="grid grid-cols-3 gap-2 p-4 bg-gray-50 border-b border-gray-100 text-center">
               <div className="bg-white p-2.5 rounded-xl border border-gray-200">
                 <span className="text-[9px] uppercase font-bold text-gray-400 block">
-                  Last 20 Avg Score
+                  Last 20 Avg
                 </span>
-                <p className="text-base font-black text-gray-900 mt-0.5">
-                  {averageGross}
-                </p>
+                <p className="text-base font-black text-gray-900 mt-0.5">{averageGross}</p>
               </div>
               <div className="bg-white p-2.5 rounded-xl border border-gray-200">
                 <span className="text-[9px] uppercase font-bold text-gray-400 block">
                   Best 8 Diff Avg
                 </span>
-                <p className="text-base font-black text-[#0f4d3a] mt-0.5">
-                  {best8AverageDiff}
-                </p>
+                <p className="text-base font-black text-[#0f4d3a] mt-0.5">{best8AverageDiff}</p>
               </div>
               <div className="bg-white p-2.5 rounded-xl border border-emerald-300">
                 <span className="text-[9px] uppercase font-bold text-emerald-700 block">
-                  Current Index
+                  Index
                 </span>
                 <p className="text-base font-black text-[#0f4d3a] mt-0.5">
-                  {handicap}
+                  {typeof handicap === "number" ? handicap.toFixed(2) : handicap}
                 </p>
               </div>
             </div>
 
-            {/* Scrollable Rounds Table */}
             <div className="p-4 overflow-y-auto flex-1 space-y-2">
               <div className="flex items-center justify-between text-[11px] font-bold text-gray-500 uppercase px-2 pb-1 border-b">
                 <span>Date & Course</span>
@@ -344,10 +381,9 @@ export default function MemberCard({
               })}
             </div>
 
-            {/* Footer */}
             <div className="p-3 bg-gray-50 border-t border-gray-100 flex items-center justify-between">
               <p className="text-[10px] text-gray-500">
-                ★ = Lowest 8 differentials used for WHS index
+                ★ = Lowest 8 differentials used for index
               </p>
               <button
                 type="button"

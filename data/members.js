@@ -75,7 +75,7 @@ export const members = [
     isMember: true,
     phone: "",
     email: "martiapi@outlook.com",
-    image: "",
+    image: "/marty-apilado.jpg",
   },
   {
     id: 7,

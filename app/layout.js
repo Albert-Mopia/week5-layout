@@ -1,3 +1,4 @@
+import HandicapInfoFooter from "@/components/HandicapInfoFooter";
 import "./globals.css";
 import Link from "next/link";
 import { Imperial_Script } from "next/font/google";
@@ -56,7 +57,7 @@ export default function RootLayout({ children }) {
           </div>
         </header>
 
-        {/* Main Content Area - pt-28 prevents content from hiding behind the fixed header */}
+        {/* Main Content Area */}
         <main className="flex-1 max-w-6xl w-full mx-auto px-6 pt-28 pb-10">
           {children}
         </main>
@@ -114,6 +115,10 @@ export default function RootLayout({ children }) {
                     >
                       <span>🏆</span> SCGA (Southern California Golf Assoc.) ↗
                     </a>
+                  </li>
+                  {/* ⛳ Clickable Handicap Explainer Modal */}
+                  <li>
+                    <HandicapInfoFooter />
                   </li>
                 </ul>
               </div>

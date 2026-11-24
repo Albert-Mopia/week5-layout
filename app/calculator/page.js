@@ -1,110 +1,135 @@
 "use client";
 
 import { useState } from "react";
-import { members } from "@/data/members";
+import { courses } from "@/data/roundsData";
 
-export default function HandicapCalculatorPage() {
-  const [selectedMemberId, setSelectedMemberId] = useState("");
-  const [scoreInput, setScoreInput] = useState("");
-  
-  // Store all member scores in state
-  const [memberScores, setMemberScores] = useState({
-    // Example: [memberId]: [score1, score2, ...]
-    32: [87, 87, 92, 82, 87, 82, 80, 81], // Mopia, A
-  });
+export default function CourseHandicapCalculator() {
+  const [handicapIndex, setHandicapIndex] = useState("12.4");
+  const [selectedCourseId, setSelectedCourseId] = useState(courses[0]?.id || "");
+  const [selectedTee, setSelectedTee] = useState("Blue");
 
-  const selectedMember = members.find((m) => m.id === Number(selectedMemberId));
-  const currentRounds = selectedMember ? (memberScores[selectedMember.id] || []) : [];
+  // Find the selected course data
+  const currentCourse = courses.find((c) => c.id === selectedCourseId) || courses[0];
+  const availableTees = currentCourse ? Object.keys(currentCourse.tees) : [];
+  const teeData = currentCourse?.tees[selectedTee] || currentCourse?.tees[availableTees[0]];
 
-  // Agave Handicap formula: lowest 8 of last 20 - Par 72
-  const calculateHcp = (rounds) => {
-    if (!rounds || rounds.length === 0) return 0;
-    const last20 = rounds.slice(0, 20);
-    const sorted = [...last20].sort((a, b) => a - b);
-    const best8 = sorted.slice(0, Math.min(8, sorted.length));
-    const avg = best8.reduce((a, b) => a + b, 0) / best8.length;
-    return Math.max(0, avg - 72).toFixed(2);
+  // Official USGA / WHS Course Handicap Formula:
+  // Course Handicap = Index × (Slope / 113) + (Course Rating - Par 72)
+  const calculateCourseHandicap = () => {
+    const index = parseFloat(handicapIndex);
+    if (isNaN(index) || !teeData) return 0;
+
+    const slope = teeData.slope || 113;
+    const rating = teeData.rating || 72.0;
+    const par = 72; // Standard regulation par
+
+    const courseHcp = index * (slope / 113) + (rating - par);
+    return Math.round(courseHcp);
   };
 
-  // Handle posting a new score
-  const handlePostScore = (e) => {
-    e.preventDefault();
-    const score = parseInt(scoreInput, 10);
-    if (!score || score < 50 || score > 150) {
-      alert("Please enter a valid score");
-      return;
-    }
-
-    setMemberScores((prev) => ({
-      ...prev,
-      [selectedMember.id]: [score, ...(prev[selectedMember.id] || [])],
-    }));
-
-    setScoreInput("");
-    alert(`Added score ${score} for ${selectedMember.name}!`);
-  };
+  const courseHcp = calculateCourseHandicap();
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      {/* 1. Golfer Dropdown */}
-      <div className="mb-6 bg-white p-4 rounded-xl border border-gray-200">
-        <label className="block text-sm font-bold text-gray-700 mb-2">Select Golfer:</label>
-        <select
-          value={selectedMemberId}
-          onChange={(e) => setSelectedMemberId(e.target.value)}
-          className="w-full p-2 border rounded-lg"
-        >
-          <option value="">-- Choose a Golfer --</option>
-          {members.map((m) => (
-            <option key={m.id} value={m.id}>
-              {m.name} {!m.isMember ? "(Guest)" : ""}
-            </option>
-          ))}
-        </select>
+    <div className="max-w-2xl mx-auto space-y-6">
+      {/* Title Header */}
+      <div className="text-center space-y-2">
+        <h1 className="text-3xl font-black text-[#0f4d3a] tracking-tight">
+          Course Handicap Calculator
+        </h1>
+        <p className="text-xs text-gray-500">
+          Official USGA / WHS playing handicap calculator for Agave Shooters tournament flights.
+        </p>
       </div>
 
-      {/* 2. Show Post Form + Scores only if a member is selected */}
-      {selectedMember ? (
+      <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-gray-200 space-y-6">
+        {/* 1. Enter Handicap Index */}
         <div>
-          {/* Post Score Form */}
-          <form onSubmit={handlePostScore} className="flex gap-4 items-end mb-6 bg-white p-4 rounded-xl border">
-            <div>
-              <label className="block text-xs font-semibold mb-1">Gross Score</label>
-              <input
-                type="number"
-                value={scoreInput}
-                onChange={(e) => setScoreInput(e.target.value)}
-                placeholder="e.g. 78"
-                className="p-2 border rounded-lg w-32"
-              />
-            </div>
-            <button type="submit" className="bg-emerald-800 text-white px-5 py-2 rounded-lg font-bold">
-              Post Score
-            </button>
-            <div className="ml-auto text-right">
-              <span className="text-xs text-gray-500 block">Current HCP</span>
-              <span className="text-2xl font-black text-emerald-800">{calculateHcp(currentRounds)}</span>
-            </div>
-          </form>
+          <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">
+            1. Your Handicap Index
+          </label>
+          <input
+            type="number"
+            step="0.1"
+            value={handicapIndex}
+            onChange={(e) => setHandicapIndex(e.target.value)}
+            placeholder="e.g. 14.2"
+            className="w-full p-3 border border-gray-300 rounded-xl font-bold text-lg text-gray-800 focus:outline-none focus:border-[#0f4d3a]"
+          />
+          <span className="text-[11px] text-gray-400 mt-1 block">
+            Check your current index on the Players Directory page.
+          </span>
+        </div>
 
-          {/* Score History */}
-          <div className="bg-white p-6 rounded-xl border">
-            <h3 className="font-bold text-lg mb-4">{selectedMember.name}'s Recent Rounds</h3>
-            <div className="grid grid-cols-4 sm:grid-cols-8 gap-2">
-              {currentRounds.map((round, idx) => (
-                <div key={idx} className="p-2 border rounded text-center">
-                  <div className="text-xs text-gray-400">R{idx + 1}</div>
-                  <div className="text-lg font-bold">{round}</div>
-                </div>
-              ))}
-            </div>
+        {/* 2. Choose Course */}
+        <div>
+          <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">
+            2. Select Tournament Course
+          </label>
+          <select
+            value={selectedCourseId}
+            onChange={(e) => {
+              setSelectedCourseId(e.target.value);
+              // Reset tee selection to first tee available for the new course
+              const newCourse = courses.find((c) => c.id === e.target.value);
+              if (newCourse) setSelectedTee(Object.keys(newCourse.tees)[0]);
+            }}
+            className="w-full p-3 border border-gray-300 rounded-xl font-medium text-gray-800 focus:outline-none focus:border-[#0f4d3a] cursor-pointer"
+          >
+            {courses.map((course) => (
+              <option key={course.id} value={course.id}>
+                {course.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* 3. Choose Tee Box */}
+        <div>
+          <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">
+            3. Select Tee Box
+          </label>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            {availableTees.map((teeName) => (
+              <button
+                key={teeName}
+                type="button"
+                onClick={() => setSelectedTee(teeName)}
+                className={`py-2.5 px-4 rounded-xl font-bold text-xs border transition-all cursor-pointer ${
+                  selectedTee === teeName
+                    ? "bg-[#0f4d3a] text-white border-[#0f4d3a] shadow-sm"
+                    : "bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100"
+                }`}
+              >
+                {teeName} Tees
+              </button>
+            ))}
           </div>
+
+          {/* Tee Specs Badge */}
+          {teeData && (
+            <div className="mt-3 flex items-center gap-4 text-xs text-gray-500 bg-gray-50 p-2.5 rounded-lg border border-gray-100">
+              <span>Rating: <strong className="text-gray-800">{teeData.rating}</strong></span>
+              <span>•</span>
+              <span>Slope: <strong className="text-gray-800">{teeData.slope}</strong></span>
+              <span>•</span>
+              <span>Par: <strong className="text-gray-800">72</strong></span>
+            </div>
+          )}
         </div>
-      ) : (
-        <div className="bg-white p-12 rounded-2xl border border-gray-200 text-center text-gray-400">
-          Select a golfer from the dropdown to see their scorecard and post a new score.
+
+        {/* Result Display Box */}
+        <div className="bg-emerald-50 border-2 border-emerald-500/30 rounded-2xl p-6 text-center space-y-1">
+          <span className="text-xs uppercase tracking-widest text-emerald-800 font-bold block">
+            Playing Strokes Allowed Today
+          </span>
+          <div className="text-5xl font-black text-emerald-950 py-1">
+            {courseHcp}
+          </div>
+          <p className="text-xs text-emerald-800 font-medium">
+            Course Handicap for {currentCourse.name} ({selectedTee} Tees)
+          </p>
         </div>
-      )}
+      </div>
     </div>
   );
 }
